@@ -43,6 +43,10 @@
     --cyan-foreground: 222 47% 5%;
     --glass: 222 47% 12%;
     --glass-border: 0 0% 100%;
+    --amber: 38 92% 50%;
+    --amber-foreground: 0 0% 100%;
+    --rose: 350 89% 60%;
+    --rose-foreground: 0 0% 100%;
 
     --sidebar-background: 222 47% 7%;
     --sidebar-foreground: 210 40% 90%;
