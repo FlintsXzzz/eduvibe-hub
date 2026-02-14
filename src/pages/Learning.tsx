@@ -1,37 +1,52 @@
 import { motion } from "framer-motion";
-import { BookOpen, BarChart3, FolderKanban } from "lucide-react";
+import { BookOpen } from "lucide-react";
+import { useMemo } from "react";
+import { useStudent } from "@/context/StudentContext";
+import SmartGradebook, { CompetencyData } from "@/components/learning/SmartGradebook";
+import DigitalPortfolio from "@/components/learning/DigitalPortfolio";
+import AIInsightCard from "@/components/learning/AIInsightCard";
 
-const Learning = () => (
-  <div className="p-4 md:p-8 max-w-2xl mx-auto">
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-      <h1 className="font-display text-2xl font-bold">Learning</h1>
+// Base scores + bonus from completed quest count
+const baseScores: Record<string, number> = {
+  Literacy: 55,
+  Logic: 40,
+  Creativity: 65,
+  Collaboration: 50,
+  Discipline: 35,
+};
 
-      <div className="glass-card-hover p-5 flex items-center gap-4 cursor-pointer">
-        <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-          <BarChart3 size={20} className="text-primary" />
-        </div>
-        <div>
-          <p className="font-medium">Smart Gradebook</p>
-          <p className="text-xs text-muted-foreground">Radar chart of your competencies</p>
-        </div>
-      </div>
+const Learning = () => {
+  const { state } = useStudent();
 
-      <div className="glass-card-hover p-5 flex items-center gap-4 cursor-pointer">
-        <div className="w-10 h-10 rounded-xl bg-emerald/20 flex items-center justify-center">
-          <FolderKanban size={20} className="text-emerald" />
-        </div>
-        <div>
-          <p className="font-medium">Digital Portfolio</p>
-          <p className="text-xs text-muted-foreground">Showcase your projects</p>
-        </div>
-      </div>
+  // Completed quests boost all scores slightly, simulating reactive data
+  const completedQuests = state.transactions.filter(
+    (t) => t.type === "earn" && t.label.startsWith("Quest:")
+  ).length;
 
-      <div className="glass-card p-12 flex flex-col items-center text-center">
-        <BookOpen size={32} className="text-muted-foreground mb-3" />
-        <p className="text-muted-foreground text-sm">Full learning modules coming soon</p>
-      </div>
-    </motion.div>
-  </div>
-);
+  const competencyData: CompetencyData[] = useMemo(
+    () =>
+      Object.entries(baseScores).map(([subject, base]) => ({
+        subject,
+        score: Math.min(100, base + completedQuests * 5),
+        fullMark: 100,
+      })),
+    [completedQuests]
+  );
+
+  return (
+    <div className="p-4 md:p-8 max-w-2xl mx-auto pb-24">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+        <div className="flex items-center gap-2">
+          <BookOpen size={20} className="text-primary" />
+          <h1 className="font-display text-2xl font-bold">Learning</h1>
+        </div>
+
+        <SmartGradebook data={competencyData} />
+        <AIInsightCard data={competencyData} />
+        <DigitalPortfolio />
+      </motion.div>
+    </div>
+  );
+};
 
 export default Learning;
