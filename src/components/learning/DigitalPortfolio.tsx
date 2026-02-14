@@ -38,14 +38,14 @@ const initialProjects: PortfolioProject[] = [
     title: "Community Mural",
     description: "Collaborative mural design for the school hallway.",
     category: "Creativity",
-    color: "bg-amber-500/20 text-amber-400",
+    color: "bg-amber/20 text-amber",
   },
   {
     id: "p5",
     title: "Debate Team Case",
     description: "Research brief on renewable energy policy arguments.",
     category: "Collaboration",
-    color: "bg-rose-500/20 text-rose-400",
+    color: "bg-rose/20 text-rose",
   },
 ];
 
