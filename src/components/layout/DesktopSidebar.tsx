@@ -1,6 +1,6 @@
-import { Home, BookOpen, Swords, ShoppingBag, Building2, Shield, Sparkles } from "lucide-react";
+import { Home, BookOpen, Swords, ShoppingBag, Building2, Shield, Sparkles, LogOut } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { useStudent } from "@/context/StudentContext";
+import { useAuth } from "@/hooks/useAuth";
 
 const links = [
   { to: "/", icon: Home, label: "Home" },
@@ -11,7 +11,10 @@ const links = [
 ];
 
 const DesktopSidebar = () => {
-  const { state } = useStudent();
+  const { user, role, signOut } = useAuth();
+
+  const displayName = user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
+  const initials = displayName.slice(0, 2).toUpperCase();
 
   return (
     <aside className="hidden md:flex flex-col w-64 min-h-screen glass-card border-r border-glass-border/20">
@@ -43,7 +46,7 @@ const DesktopSidebar = () => {
           </NavLink>
         ))}
 
-        {(state.role === "teacher" || state.role === "admin") && (
+        {(role === "teacher" || role === "admin") && (
           <NavLink
             to="/admin"
             className={({ isActive }) =>
@@ -64,12 +67,15 @@ const DesktopSidebar = () => {
       <div className="p-4 mx-3 mb-4 glass-card rounded-xl">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
-            {state.avatar}
+            {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">{state.name}</p>
-            <p className="text-xs text-muted-foreground capitalize">{state.role}</p>
+            <p className="text-sm font-medium truncate">{displayName}</p>
+            <p className="text-xs text-muted-foreground capitalize">{role ?? "student"}</p>
           </div>
+          <button onClick={signOut} className="p-1.5 rounded-lg hover:bg-secondary/50 text-muted-foreground transition-colors">
+            <LogOut size={16} />
+          </button>
         </div>
       </div>
     </aside>
