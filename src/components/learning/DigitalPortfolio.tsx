@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { FolderKanban, ExternalLink, Image as ImageIcon } from "lucide-react";
+import { FolderKanban, ExternalLink, Image as ImageIcon, Store, ToggleLeft, ToggleRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PortfolioProject {
   id: string;
@@ -50,11 +52,47 @@ const initialProjects: PortfolioProject[] = [
 ];
 
 const DigitalPortfolio = () => {
-  const [exported, setExported] = useState<Set<string>>(new Set());
+  const { user } = useAuth();
+  const [listed, setListed] = useState<Set<string>>(new Set());
+  const [toggling, setToggling] = useState<string | null>(null);
 
-  const handleExport = (project: PortfolioProject) => {
-    setExported((prev) => new Set(prev).add(project.id));
-    toast.success(`"${project.title}" exported to Marketplace!`);
+  const handleToggleMarket = async (project: PortfolioProject) => {
+    if (!user) return;
+    setToggling(project.id);
+
+    if (listed.has(project.id)) {
+      // Remove from marketplace
+      await supabase
+        .from("market_items")
+        .delete()
+        .eq("seller_id", user.id)
+        .eq("title", project.title)
+        .eq("is_from_portfolio", true);
+      setListed((prev) => {
+        const next = new Set(prev);
+        next.delete(project.id);
+        return next;
+      });
+      toast.success(`"${project.title}" removed from Marketplace`);
+    } else {
+      // Add to marketplace
+      const { error } = await supabase.from("market_items").insert({
+        seller_id: user.id,
+        title: project.title,
+        description: project.description,
+        price: 20,
+        category: "Digital",
+        stock: 1,
+        is_from_portfolio: true,
+      });
+      if (error) {
+        toast.error("Failed to list item");
+      } else {
+        setListed((prev) => new Set(prev).add(project.id));
+        toast.success(`"${project.title}" listed on Marketplace! 🎉`);
+      }
+    }
+    setToggling(null);
   };
 
   return (
@@ -90,13 +128,28 @@ const DigitalPortfolio = () => {
             </span>
             <h3 className="font-display font-semibold text-sm mt-2">{project.title}</h3>
             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{project.description}</p>
+
+            {/* List on Marketplace toggle */}
             <button
-              onClick={() => handleExport(project)}
-              disabled={exported.has(project.id)}
-              className="mt-3 w-full flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-lg transition-colors bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => handleToggleMarket(project)}
+              disabled={toggling === project.id}
+              className={`mt-3 w-full flex items-center justify-center gap-1.5 text-xs font-medium py-2 rounded-lg transition-colors ${
+                listed.has(project.id)
+                  ? "bg-emerald/15 text-emerald border border-emerald/20"
+                  : "bg-primary/10 text-primary hover:bg-primary/20"
+              } disabled:opacity-40`}
             >
-              <ExternalLink size={12} />
-              {exported.has(project.id) ? "Exported" : "Export to Marketplace"}
+              {listed.has(project.id) ? (
+                <>
+                  <ToggleRight size={14} />
+                  Listed on Market
+                </>
+              ) : (
+                <>
+                  <Store size={14} />
+                  List on Marketplace
+                </>
+              )}
             </button>
           </motion.div>
         ))}

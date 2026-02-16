@@ -4,6 +4,9 @@ import { Shield, CheckCircle2, Clock, Sparkles, TrendingUp, TrendingDown, Minus 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import EconomyOverview from "@/components/admin/EconomyOverview";
+import WellnessHeatmap from "@/components/admin/WellnessHeatmap";
+import InventoryManager from "@/components/admin/InventoryManager";
 
 interface Submission {
   id: string;
@@ -38,14 +41,12 @@ const TeacherDashboard = () => {
   const fetchData = async () => {
     setLoading(true);
 
-    // Fetch pending submissions with student names
     const { data: subs } = await supabase
       .from("quest_submissions")
       .select("*")
       .eq("status", "pending")
       .order("submitted_at", { ascending: false });
 
-    // Fetch student profiles for names
     if (subs && subs.length > 0) {
       const studentIds = [...new Set(subs.map((s) => s.student_id))];
       const { data: profiles } = await supabase
@@ -61,7 +62,6 @@ const TeacherDashboard = () => {
       setSubmissions([]);
     }
 
-    // Fetch recent mood logs (last 7 days)
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const { data: moodData } = await supabase
@@ -96,7 +96,6 @@ const TeacherDashboard = () => {
     setSubmissions((prev) => prev.filter((s) => s.id !== sub.id));
   };
 
-  // Mood aggregation
   const moodCounts: Record<string, number> = {};
   moods.forEach((m) => {
     moodCounts[m.mood] = (moodCounts[m.mood] || 0) + 1;
@@ -208,7 +207,6 @@ const TeacherDashboard = () => {
             </div>
           ) : (
             <>
-              {/* Mood distribution bars */}
               <div className="space-y-2">
                 {["Great", "Good", "Okay", "Low", "Angry"].map((mood) => {
                   const count = moodCounts[mood] || 0;
@@ -237,7 +235,6 @@ const TeacherDashboard = () => {
                 })}
               </div>
 
-              {/* Average score */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/40">
                 <span className="text-sm font-medium">Average Mood Score</span>
                 <span className="text-lg font-bold font-display">
@@ -247,6 +244,15 @@ const TeacherDashboard = () => {
             </>
           )}
         </motion.div>
+
+        {/* Economy Overview */}
+        <EconomyOverview />
+
+        {/* Wellness Heatmap */}
+        <WellnessHeatmap />
+
+        {/* Inventory Manager */}
+        <InventoryManager />
       </motion.div>
     </div>
   );

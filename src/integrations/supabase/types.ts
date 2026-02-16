@@ -59,6 +59,56 @@ export type Database = {
         }
         Relationships: []
       }
+      market_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          is_from_portfolio: boolean
+          price: number
+          seller_id: string
+          stock: number
+          title: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_from_portfolio?: boolean
+          price?: number
+          seller_id: string
+          stock?: number
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_from_portfolio?: boolean
+          price?: number
+          seller_id?: string
+          stock?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_items_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mood_logs: {
         Row: {
           created_at: string
@@ -88,9 +138,48 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          title: string
+          type?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_initials: string
+          balance: number
           created_at: string
           id: string
           name: string
@@ -98,6 +187,7 @@ export type Database = {
         }
         Insert: {
           avatar_initials?: string
+          balance?: number
           created_at?: string
           id: string
           name?: string
@@ -105,6 +195,7 @@ export type Database = {
         }
         Update: {
           avatar_initials?: string
+          balance?: number
           created_at?: string
           id?: string
           name?: string
@@ -171,6 +262,61 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount: number
+          buyer_id: string
+          created_at: string
+          id: string
+          item_id: string | null
+          seller_id: string
+          status: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          seller_id: string
+          status?: string
+          type?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          seller_id?: string
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "market_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -194,6 +340,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      buy_item: { Args: { _buyer_id: string; _item_id: string }; Returns: Json }
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean

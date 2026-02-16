@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { StudentProvider } from "@/context/StudentContext";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { CoinAnimationProvider } from "@/components/ui/CoinAnimation";
 import MainLayout from "@/components/layout/MainLayout";
 import Index from "./pages/Index";
 import Learning from "./pages/Learning";
@@ -36,22 +37,24 @@ const App = () => (
     <TooltipProvider>
       <AuthProvider>
         <StudentProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                <Route path="/" element={<Index />} />
-                <Route path="/learning" element={<Learning />} />
-                <Route path="/quests" element={<Quests />} />
-                <Route path="/market" element={<Market />} />
-                <Route path="/facilities" element={<Facilities />} />
-                <Route path="/admin" element={<TeacherRoute><TeacherDashboard /></TeacherRoute>} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <CoinAnimationProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/learning" element={<Learning />} />
+                  <Route path="/quests" element={<Quests />} />
+                  <Route path="/market" element={<Market />} />
+                  <Route path="/facilities" element={<Facilities />} />
+                  <Route path="/admin" element={<TeacherRoute><TeacherDashboard /></TeacherRoute>} />
+                </Route>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </CoinAnimationProvider>
         </StudentProvider>
       </AuthProvider>
     </TooltipProvider>
