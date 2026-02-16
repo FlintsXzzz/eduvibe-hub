@@ -15,7 +15,10 @@ const MoodCheckIn = () => {
   const { state, setMood } = useStudent();
   const { user } = useAuth();
 
+  const VALID_MOODS = ['Great', 'Good', 'Okay', 'Low', 'Angry'] as const;
+
   const handleMood = async (label: string) => {
+    if (!VALID_MOODS.includes(label as any)) return;
     setMood(label);
     if (user) {
       await supabase.from("mood_logs").insert({ user_id: user.id, mood: label });
