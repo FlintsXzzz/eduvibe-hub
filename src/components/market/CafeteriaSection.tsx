@@ -1,31 +1,56 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Coffee } from "lucide-react";
-import { useStudent } from "@/context/StudentContext";
+import { Coffee, ShoppingCart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-const cafeteriaItems = [
-  { id: "c1", name: "Fresh Smoothie", price: 8, emoji: "🥤" },
-  { id: "c2", name: "Sandwich", price: 12, emoji: "🥪" },
-  { id: "c3", name: "Fruit Bowl", price: 6, emoji: "🍎" },
-  { id: "c4", name: "Pasta", price: 15, emoji: "🍝" },
-];
+const emojiMap: Record<string, string> = {
+  "Fresh Smoothie": "🥤",
+  "Sandwich": "🥪",
+  "Fruit Bowl": "🍎",
+  "Pasta": "🍝",
+};
+
+interface CafeteriaItem {
+  id: string;
+  title: string;
+  price: number;
+  stock: number;
+}
 
 const CafeteriaSection = () => {
-  const { spendCoins } = useStudent();
   const { user } = useAuth();
+  const [items, setItems] = useState<CafeteriaItem[]>([]);
+  const [buying, setBuying] = useState<string | null>(null);
 
-  const handleBuy = async (item: typeof cafeteriaItems[0]) => {
-    const success = spendCoins(item.price, `Cafeteria: ${item.name}`);
-    if (success && user) {
-      // Also deduct from DB balance
-      await supabase.rpc("buy_item" as never, {} as never).then(() => {});
-      // For cafeteria, just deduct locally since these are static items
-      toast.success(`Purchased ${item.name}!`);
-    } else if (!success) {
-      toast.error("Not enough coins!");
+  const fetchItems = async () => {
+    const { data } = await supabase
+      .from("market_items")
+      .select("id, title, price, stock")
+      .eq("category", "Snack")
+      .eq("is_active", true)
+      .order("price", { ascending: true });
+    setItems(data ?? []);
+  };
+
+  useEffect(() => { fetchItems(); }, []);
+
+  const handleBuy = async (item: CafeteriaItem) => {
+    if (!user) return;
+    setBuying(item.id);
+    const { data, error } = await supabase.rpc("buy_item", {
+      _item_id: item.id,
+      _buyer_id: user.id,
+    });
+
+    if (error) {
+      toast.error(error.message || "Purchase failed");
+    } else if (data && Array.isArray(data) && data.length > 0) {
+      toast.success(`Purchased ${item.title}! Balance: ${data[0].new_balance} coins 🎉`);
+      fetchItems();
     }
+    setBuying(null);
   };
 
   return (
@@ -35,16 +60,24 @@ const CafeteriaSection = () => {
         <h2 className="text-sm font-medium text-muted-foreground">Cafeteria</h2>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        {cafeteriaItems.map((item) => (
+        {items.map((item) => (
           <motion.button
             key={item.id}
             whileTap={{ scale: 0.97 }}
             onClick={() => handleBuy(item)}
-            className="glass-card-hover p-4 text-left"
+            disabled={buying === item.id || item.stock <= 0}
+            className="glass-card-hover p-4 text-left relative disabled:opacity-50"
           >
-            <span className="text-2xl">{item.emoji}</span>
-            <p className="text-sm font-medium mt-2">{item.name}</p>
-            <p className="text-xs text-cyan mt-1">{item.price} Coins</p>
+            <span className="text-2xl">{emojiMap[item.title] || "🍽️"}</span>
+            <p className="text-sm font-medium mt-2">{item.title}</p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-cyan">{item.price} Coins</p>
+              {buying === item.id ? (
+                <div className="w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              ) : (
+                <ShoppingCart size={12} className="text-muted-foreground" />
+              )}
+            </div>
           </motion.button>
         ))}
       </div>
