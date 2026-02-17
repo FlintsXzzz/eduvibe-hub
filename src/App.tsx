@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { StudentProvider } from "@/context/StudentContext";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { CoinAnimationProvider } from "@/components/ui/CoinAnimation";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import MainLayout from "@/components/layout/MainLayout";
 import Index from "./pages/Index";
 import Learning from "./pages/Learning";
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+            <SpeedInsights />
           </CoinAnimationProvider>
         </StudentProvider>
       </AuthProvider>
