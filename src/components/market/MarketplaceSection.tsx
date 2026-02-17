@@ -60,15 +60,11 @@ const MarketplaceSection = () => {
     });
 
     if (error) {
-      toast.error("Purchase failed");
-    } else if (data && typeof data === "object") {
-      const result = data as Record<string, unknown>;
-      if (result.success) {
-        toast.success(`Bought "${result.item_title}" for ${result.price} coins! 🎉`);
-        fetchItems();
-      } else {
-        toast.error(String(result.error || "Purchase failed"));
-      }
+      toast.error(error.message || "Purchase failed");
+    } else if (data && Array.isArray(data) && data.length > 0) {
+      const result = data[0];
+      toast.success(`Purchase successful! New balance: ${result.new_balance} coins 🎉`);
+      fetchItems();
     }
     setBuying(false);
   };

@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      auth_users_audit: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          id: number
+          new_data: Json | null
+          old_data: Json | null
+          operation: string
+          user_id: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: number
+          new_data?: Json | null
+          old_data?: Json | null
+          operation: string
+          user_id?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: number
+          new_data?: Json | null
+          old_data?: Json | null
+          operation?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      debug_auth_uid: {
+        Row: {
+          auth_uid: string | null
+          captured_at: string
+          client_ip: string | null
+          id: number
+          note: string | null
+          object_table: string
+          operation: string
+        }
+        Insert: {
+          auth_uid?: string | null
+          captured_at?: string
+          client_ip?: string | null
+          id?: number
+          note?: string | null
+          object_table: string
+          operation: string
+        }
+        Update: {
+          auth_uid?: string | null
+          captured_at?: string
+          client_ip?: string | null
+          id?: number
+          note?: string | null
+          object_table?: string
+          operation?: string
+        }
+        Relationships: []
+      }
       "kelas X": {
         Row: {
           "Nama Lengkap": string
@@ -337,13 +397,38 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      class_wellness_summary: {
+        Row: {
+          avg_mood_score: number | null
+          day: string | null
+          entries: number | null
+          max_mood_score: number | null
+          min_mood_score: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      buy_item: { Args: { _buyer_id: string; _item_id: string }; Returns: Json }
+      buy_item: {
+        Args: { _buyer_id: string; _item_id: string; _quantity?: number }
+        Returns: {
+          new_balance: number
+          remaining_stock: number
+          transaction_id: string
+        }[]
+      }
+      debug_capture_auth_uid: {
+        Args: { p_note?: string; p_operation: string; p_table: string }
+        Returns: boolean
+      }
       has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
+      }
+      mood_score: { Args: { m: string }; Returns: number }
+      set_profile_balance: {
+        Args: { p_new_balance: number; p_user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
