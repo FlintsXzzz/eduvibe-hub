@@ -242,7 +242,7 @@ export type Database = {
           balance: number
           created_at: string
           id: string
-          name: string
+          name: string | null
           teacher_id: string | null
         }
         Insert: {
@@ -250,7 +250,7 @@ export type Database = {
           balance?: number
           created_at?: string
           id: string
-          name?: string
+          name?: string | null
           teacher_id?: string | null
         }
         Update: {
@@ -258,7 +258,7 @@ export type Database = {
           balance?: number
           created_at?: string
           id?: string
-          name?: string
+          name?: string | null
           teacher_id?: string | null
         }
         Relationships: [
