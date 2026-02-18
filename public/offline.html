@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>You're Offline — EduVibe</title>
+    <meta name="theme-color" content="#7C3AED" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap');
+
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --bg: #080e1f;
+        --card: #0e1628;
+        --border: rgba(255,255,255,0.08);
+        --primary: #7C3AED;
+        --primary-glow: rgba(124,58,237,0.25);
+        --text: #e2e8f0;
+        --muted: #64748b;
+      }
+
+      body {
+        background-color: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', sans-serif;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1.5rem;
+        padding-top: calc(env(safe-area-inset-top) + 2rem);
+        padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);
+        text-align: center;
+        overflow: hidden;
+      }
+
+      /* Background glow blobs */
+      .blob {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .blob-1 {
+        width: 320px; height: 320px;
+        background: var(--primary-glow);
+        top: -80px; left: -80px;
+      }
+      .blob-2 {
+        width: 240px; height: 240px;
+        background: rgba(6,182,212,0.12);
+        bottom: -60px; right: -60px;
+      }
+
+      .content {
+        position: relative;
+        z-index: 1;
+        max-width: 360px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      /* Animated signal icon */
+      .icon-wrap {
+        width: 88px;
+        height: 88px;
+        border-radius: 24px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 40px var(--primary-glow);
+        animation: pulse 2.5s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 40px var(--primary-glow); }
+        50%       { box-shadow: 0 0 70px var(--primary-glow), 0 0 20px rgba(124,58,237,0.4); }
+      }
+
+      .icon-wrap svg {
+        width: 44px; height: 44px;
+      }
+
+      .texts h1 {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.75rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #a78bfa, #7C3AED);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+      }
+
+      .texts p {
+        font-size: 0.9rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .card {
+        width: 100%;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .card-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .tip {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      .tip-dot {
+        flex-shrink: 0;
+        margin-top: 0.4rem;
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--primary);
+      }
+
+      .btn {
+        width: 100%;
+        padding: 0.875rem;
+        border-radius: 12px;
+        background: var(--primary);
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: opacity 0.2s, transform 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      .btn:hover  { opacity: 0.9; }
+      .btn:active { transform: scale(0.98); }
+
+      .status-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .status-dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: #ef4444;
+        flex-shrink: 0;
+        animation: blink 1.5s ease-in-out infinite;
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.3; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="content">
+      <!-- Icon -->
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Wifi bars with slash through -->
+          <path d="M1 1l22 22" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/>
+          <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10.71 5.05A16 16 0 0 1 22.56 9" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="20" r="1" fill="#a78bfa"/>
+        </svg>
+      </div>
+
+      <!-- Text -->
+      <div class="texts">
+        <h1>You're Offline</h1>
+        <p>EduVibe can't reach the internet right now. Check your connection and try again.</p>
+      </div>
+
+      <!-- Tips card -->
+      <div class="card">
+        <div class="card-title">Quick fixes</div>
+        <div class="tip"><div class="tip-dot"></div><span>Toggle Airplane Mode off and back on.</span></div>
+        <div class="tip"><div class="tip-dot"></div><span>Move closer to your Wi-Fi router.</span></div>
+        <div class="tip"><div class="tip-dot"></div><span>Switch between Wi-Fi and mobile data.</span></div>
+      </div>
+
+      <!-- Retry button -->
+      <button class="btn" onclick="window.location.reload()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+          <path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+        </svg>
+        Try Again
+      </button>
+
+      <!-- Status -->
+      <div class="status-row">
+        <div class="status-dot"></div>
+        <span>No internet connection detected</span>
+      </div>
+    </div>
+
+    <script>
+      // Auto-reload when connection is restored
+      window.addEventListener('online', () => window.location.reload());
+    </script>
+  </body>
+</html>
