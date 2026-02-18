@@ -3,6 +3,7 @@ import WalletCard from "@/components/home/WalletCard";
 import LevelProgress from "@/components/home/LevelProgress";
 import TodaySchedule from "@/components/home/TodaySchedule";
 import MoodCheckIn from "@/components/home/MoodCheckIn";
+import PWAInstallBanner from "@/components/home/PWAInstallBanner";
 import { useStudent } from "@/context/StudentContext";
 import { Sparkles } from "lucide-react";
 
@@ -33,6 +34,7 @@ const Index = () => {
           </div>
         </motion.div>
 
+        <motion.div variants={item}><PWAInstallBanner /></motion.div>
         <motion.div variants={item}><WalletCard /></motion.div>
         <motion.div variants={item}><LevelProgress /></motion.div>
         <motion.div variants={item}><MoodCheckIn /></motion.div>
