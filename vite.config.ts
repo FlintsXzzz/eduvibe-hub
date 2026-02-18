@@ -18,10 +18,29 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "pwa-192.png", "pwa-512.png"],
+      includeAssets: ["favicon.ico", "pwa-192.png", "pwa-512.png", "offline.html"],
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Serve offline.html for any navigation request that fails
+        offlineGoogleAnalytics: false,
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }: { request: Request }) =>
+              request.mode === "navigate",
+            handler: "NetworkFirst" as const,
+            options: {
+              cacheName: "pages-cache",
+              networkTimeoutSeconds: 5,
+              plugins: [
+                {
+                  handlerDidError: async () =>
+                    Response.redirect("/offline.html", 302),
+                },
+              ],
+            },
+          },
+        ],
       },
       manifest: {
         name: "EduVibe",
