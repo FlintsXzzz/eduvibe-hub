@@ -79,7 +79,7 @@ const TeacherDashboard = () => {
   }, []);
 
   const handleApprove = async (sub: Submission) => {
-    const { error, count } = await supabase
+    const { data, error } = await supabase
       .from("quest_submissions")
       .update({
         status: "approved",
@@ -87,13 +87,14 @@ const TeacherDashboard = () => {
         approved_by: user?.id,
       })
       .eq("id", sub.id)
-      .eq("status", "pending");
+      .eq("status", "pending")
+      .select();
 
     if (error) {
       toast.error("Failed to approve");
       return;
     }
-    if (count === 0) {
+    if (!data || data.length === 0) {
       toast.error("This submission was already processed");
       setSubmissions((prev) => prev.filter((s) => s.id !== sub.id));
       return;
