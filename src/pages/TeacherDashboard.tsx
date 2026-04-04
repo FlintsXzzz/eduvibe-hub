@@ -94,7 +94,7 @@ const TeacherDashboard = () => {
       toast.error("Failed to approve");
       return;
     }
-    if (count === 0) {
+    if (!data || data.length === 0) {
       toast.error("This submission was already processed");
       setSubmissions((prev) => prev.filter((s) => s.id !== sub.id));
       return;
