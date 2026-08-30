@@ -16,15 +16,33 @@ jobs:
             circleci run release plan deploy-rollback \
               --environment-name=${ENVIRONMENT_NAME} \
               --component-name=${COMPONENT_NAME} \
+              --namespace=${NAMESPACE} \
               --target-version=${TARGET_VERSION} \
               --rollback
       - run:
-          name: Perform rollback
-          command: '# TODO: add rollback logic using ${TARGET_VERSION}'
+          name: Mark rollback as running
+          command: circleci run release update deploy-rollback --status=RUNNING
       - run:
-          name: Update deployment status to failed
+          name: Perform rollback
+          command: |
+            : "${DEPLOY_COMMAND:?DEPLOY_COMMAND must contain the authenticated deployment command}"
+            ${DEPLOY_COMMAND} \
+              --environment="${ENVIRONMENT_NAME}" \
+              --component="${COMPONENT_NAME}" \
+              --namespace="${NAMESPACE}" \
+              --version="${TARGET_VERSION}"
+      - run:
+          name: Update rollback status to successful
+          command: circleci run release update deploy-rollback --status=SUCCESS
+          when: on_success
+      - run:
+          name: Update rollback status to failed
           command: circleci run release update deploy-rollback --status=FAILED
           when: on_fail
+      - run:
+          name: Update rollback status to canceled
+          command: circleci run release update deploy-rollback --status=CANCELED
+          when: canceled
   cancel-deploy-rollback:
     docker:
       - image: cimg/base:stable
@@ -39,7 +57,6 @@ jobs:
     plan_name: deploy-rollback
     validation:
       enabled: true
-
 
 workflows:
   rollback:

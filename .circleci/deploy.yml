@@ -17,15 +17,32 @@ jobs:
             circleci run release plan \
               --environment-name=${ENVIRONMENT_NAME} \
               --component-name=${COMPONENT_NAME} \
+              --namespace=${NAMESPACE} \
               --target-version=${TARGET_VERSION}
+      - run:
+          name: Mark deployment as running
+          command: circleci run release update --status=RUNNING
       - run:
           name: Perform deployment
           command: |
-            # TODO: add deployment logic inferred from deploy job
+            : "${DEPLOY_COMMAND:?DEPLOY_COMMAND must contain the authenticated deployment command}"
+            ${DEPLOY_COMMAND} \
+              --environment="${ENVIRONMENT_NAME}" \
+              --component="${COMPONENT_NAME}" \
+              --namespace="${NAMESPACE}" \
+              --version="${TARGET_VERSION}"
+      - run:
+          name: Update deployment status to successful
+          command: circleci run release update --status=SUCCESS
+          when: on_success
       - run:
           name: Update deployment status to failed
           command: circleci run release update --status=FAILED
           when: on_fail
+      - run:
+          name: Update deployment status to canceled
+          command: circleci run release update --status=CANCELED
+          when: canceled
   cancel-deploy:
     docker:
       - image: cimg/base:stable
@@ -38,10 +55,9 @@ jobs:
   deploy-release:
     type: release
     plan_name: deploy
-    validation:
-      enabled: true
-      auto_rollback_on_failure: true
-
+      validation:
+        enabled: true
+        auto_rollback_on_failure: true
 
 workflows:
   deploy:
