@@ -1,0 +1,56 @@
+version: 2.1
+
+jobs:
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    environment:
+      COMPONENT_NAME: "<< pipeline.deploy.component_name >>"
+      ENVIRONMENT_NAME: "<< pipeline.deploy.environment_name >>"
+      NAMESPACE: "<< pipeline.deploy.namespace >>"
+      TARGET_VERSION: "<< pipeline.deploy.target_version >>"
+    steps:
+      - checkout
+      - run:
+          name: Plan release
+          command: |
+            circleci run release plan \
+              --environment-name=${ENVIRONMENT_NAME} \
+              --component-name=${COMPONENT_NAME} \
+              --target-version=${TARGET_VERSION}
+      - run:
+          name: Perform deployment
+          command: |
+            # TODO: add deployment logic inferred from deploy job
+      - run:
+          name: Update deployment status to failed
+          command: circleci run release update --status=FAILED
+          when: on_fail
+  cancel-deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Update planned release to CANCELED
+          command: |
+            circleci run release update deploy \
+              --status=CANCELED
+  deploy-release:
+    type: release
+    plan_name: deploy
+    validation:
+      enabled: true
+      auto_rollback_on_failure: true
+
+
+workflows:
+  deploy:
+    jobs:
+      - deploy
+      - deploy-release:
+          requires:
+            - deploy
+      - cancel-deploy:
+          requires:
+            - deploy:
+              - canceled
