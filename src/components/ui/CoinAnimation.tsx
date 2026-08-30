@@ -14,6 +14,7 @@ interface CoinAnimationContextType {
 
 const CoinAnimationContext = createContext<CoinAnimationContextType | undefined>(undefined);
 
+/** Consumes the CoinAnimationContext. Must be called within a `CoinAnimationProvider` subtree. */
 export const useCoinAnimation = () => {
   const ctx = useContext(CoinAnimationContext);
   if (!ctx) throw new Error("useCoinAnimation must be used within CoinAnimationProvider");
@@ -23,6 +24,12 @@ export const useCoinAnimation = () => {
 export const CoinAnimationProvider = ({ children }: { children: ReactNode }) => {
   const [bursts, setBursts] = useState<CoinBurst[]>([]);
 
+  /**
+   * Spawns a coin burst at the given viewport-relative coordinates.
+   * `x` / `y` should come from a `MouseEvent`'s `clientX` / `clientY`.
+   * At most 6 coin sprites are rendered regardless of `amount`; the numeric
+   * label always reflects the true amount. Burst cleans itself up after 1.2 s.
+   */
   const triggerCoinAnimation = useCallback((x: number, y: number, amount: number) => {
     const id = Date.now();
     setBursts((prev) => [...prev, { id, x, y, amount }]);

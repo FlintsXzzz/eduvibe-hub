@@ -29,6 +29,7 @@ interface StudentContextType {
   setMood: (mood: string) => void;
 }
 
+/** XP required to reach `level + 1`. Uses a 1.5-power curve so higher levels demand disproportionately more XP. */
 const xpForLevel = (level: number) => Math.floor(100 * Math.pow(level, 1.5));
 
 const defaultState: StudentState = {
@@ -51,6 +52,11 @@ const StudentContext = createContext<StudentContextType | undefined>(undefined);
 export const StudentProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<StudentState>(defaultState);
 
+  /**
+   * Awards XP and automatically handles multi-level-ups in a single state
+   * update — the while loop ensures a large XP grant can advance the student
+   * several levels at once.
+   */
   const addXP = (amount: number) => {
     setState((prev) => {
       let newXP = prev.xp + amount;
@@ -74,6 +80,11 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
+  /**
+   * Deducts `amount` coins and records the transaction.
+   * Returns `false` (without mutating state) when the balance is insufficient —
+   * callers must check the return value before assuming the purchase succeeded.
+   */
   const spendCoins = (amount: number, label: string) => {
     if (state.eduCoins < amount) return false;
     setState((prev) => ({
@@ -96,6 +107,7 @@ export const StudentProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+/** Consumes the StudentContext. Must be called within a `StudentProvider` subtree. */
 export const useStudent = () => {
   const ctx = useContext(StudentContext);
   if (!ctx) throw new Error("useStudent must be used within StudentProvider");

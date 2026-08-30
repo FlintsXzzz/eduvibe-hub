@@ -18,6 +18,10 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+/**
+ * Redirects unauthenticated visitors to `/auth`. Shows a spinner while the
+ * initial session check is in-flight to avoid a flash-of-unauthenticated state.
+ */
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
@@ -25,6 +29,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+/**
+ * Restricts access to users whose role is `"teacher"` or `"admin"`.
+ * Admins are intentionally included so they can also reach staff-only pages.
+ * Students are redirected to the home page.
+ */
 const TeacherRoute = ({ children }: { children: React.ReactNode }) => {
   const { role, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
