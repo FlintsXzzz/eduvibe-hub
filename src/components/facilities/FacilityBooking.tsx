@@ -18,10 +18,17 @@ const facilities: Facility[] = [
 
 const timeSlots = ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00"];
 
+/**
+ * UI for booking a facility time slot.
+ * Bookings are stored only in local state (not persisted to the backend), so
+ * they reset on page reload. Per-slot availability is keyed by
+ * `"${facilityId}-${slot}"` to allow the same time slot across different rooms.
+ */
 const FacilityBooking = () => {
   const [selected, setSelected] = useState<{ facility: string; slot: string } | null>(null);
   const [booked, setBooked] = useState<Set<string>>(new Set());
 
+  /** Confirms the selected facility + time slot and marks that slot as booked. */
   const handleBook = () => {
     if (!selected) return;
     const key = `${selected.facility}-${selected.slot}`;

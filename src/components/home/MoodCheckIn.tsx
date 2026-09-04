@@ -17,6 +17,11 @@ const MoodCheckIn = () => {
 
   const VALID_MOODS = ['Great', 'Good', 'Okay', 'Low', 'Angry'] as const;
 
+  /**
+   * Records the selected mood in local state and, when authenticated, persists
+   * it to `mood_logs` for the wellness heatmap on the teacher dashboard.
+   * The allowlist guard prevents injecting arbitrary strings into the DB.
+   */
   const handleMood = async (label: string) => {
     if (!VALID_MOODS.includes(label as any)) return;
     setMood(label);

@@ -11,6 +11,12 @@ interface DayData {
   circulation: number;
 }
 
+/**
+ * Admin widget showing EduCoin transaction volume per day over the last 7 days
+ * as a line chart, plus the current total coins in circulation (sum of all
+ * profile balances). Circulation is a point-in-time snapshot — the same value
+ * is repeated for every day on the chart.
+ */
 const EconomyOverview = () => {
   const [data, setData] = useState<DayData[]>([]);
   const [loading, setLoading] = useState(true);

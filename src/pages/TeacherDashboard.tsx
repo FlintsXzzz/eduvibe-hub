@@ -38,6 +38,10 @@ const TeacherDashboard = () => {
   const [moods, setMoods] = useState<MoodEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Loads all pending quest submissions (with resolved student names) and the
+   * last 7 days of mood logs in parallel. Called on mount and after an approval.
+   */
   const fetchData = async () => {
     setLoading(true);
 
@@ -78,6 +82,12 @@ const TeacherDashboard = () => {
     fetchData();
   }, []);
 
+  /**
+   * Approves a quest submission and grants the student their XP and coins.
+   * The UPDATE is filtered by `.eq("status", "pending")` so concurrent approvals
+   * by two teachers resolve safely — the second one gets an empty result set and
+   * shows an informational error instead of double-granting rewards.
+   */
   const handleApprove = async (sub: Submission) => {
     const { data, error } = await supabase
       .from("quest_submissions")

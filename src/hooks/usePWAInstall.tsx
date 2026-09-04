@@ -5,6 +5,12 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+/**
+ * Manages the browser's PWA install prompt lifecycle.
+ * - `isInstallable` — browser has fired `beforeinstallprompt` and the app can be installed.
+ * - `isInstalled`   — app is already running in standalone mode or was just installed.
+ * - `promptInstall` — shows the native install dialog; returns `true` if the user accepted.
+ */
 export const usePWAInstall = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
@@ -34,6 +40,11 @@ export const usePWAInstall = () => {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
+  /**
+   * Triggers the browser's native install dialog.
+   * Returns `false` without showing anything when no deferred prompt is available
+   * (browser does not support PWA install or the banner was already dismissed).
+   */
   const promptInstall = async () => {
     if (!deferredPrompt) return false;
     await deferredPrompt.prompt();
