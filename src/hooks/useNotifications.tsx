@@ -12,6 +12,11 @@ export interface Notification {
   created_at: string;
 }
 
+/**
+ * Fetches the current user's notifications (newest-first, capped at 50) and
+ * subscribes to realtime INSERT events so new notifications appear without a
+ * page refresh. Provides helpers to mark individual or all notifications read.
+ */
 export const useNotifications = () => {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -41,6 +46,7 @@ export const useNotifications = () => {
     setUnreadCount(0);
   };
 
+  /** Marks a single notification read and decrements `unreadCount` optimistically. */
   const markRead = async (id: string) => {
     await supabase.from("notifications").update({ is_read: true }).eq("id", id);
     setNotifications((prev) =>

@@ -47,6 +47,7 @@ const Quests = () => {
   const [customTitle, setCustomTitle] = useState("");
   const [customSubmitting, setCustomSubmitting] = useState(false);
 
+  /** Loads all of the current user's submissions ordered newest-first. */
   const fetchSubmissions = async () => {
     if (!user) return;
     const { data } = await supabase
@@ -62,6 +63,11 @@ const Quests = () => {
     fetchSubmissions();
   }, [user]);
 
+  /**
+   * Submits a quest template for teacher review.
+   * Prevents duplicate submissions by checking for an existing `"pending"`
+   * entry with the same title before inserting.
+   */
   const submitQuest = async (quest: QuestTemplate) => {
     if (!user) {
       toast.error("You must be logged in");
@@ -93,6 +99,10 @@ const Quests = () => {
     setSubmitting(null);
   };
 
+  /**
+   * Submits a student-defined quest with fixed rewards (50 XP / 10 coins).
+   * Rewards are intentionally fixed here; teachers can adjust them during approval.
+   */
   const submitCustomQuest = async () => {
     if (!user) return;
     const result = customQuestSchema.safeParse({
@@ -124,6 +134,7 @@ const Quests = () => {
     setCustomSubmitting(false);
   };
 
+  /** Returns the most-recent submission matching `questTitle`, or `undefined` if none exists. */
   const getSubmissionStatus = (questTitle: string) => {
     return submissions.find((s) => s.quest_title === questTitle);
   };

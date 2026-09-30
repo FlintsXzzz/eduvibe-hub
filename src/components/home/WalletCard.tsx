@@ -4,6 +4,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 
+/**
+ * Displays the current EduCoin balance and the three most recent transactions.
+ *
+ * When a user is authenticated, the balance is fetched from the `profiles`
+ * table and kept live via a Supabase realtime UPDATE subscription. For
+ * unauthenticated (demo) sessions the local `StudentContext` balance is shown
+ * instead, and no network calls are made.
+ */
 const WalletCard = () => {
   const { state } = useStudent();
   const { user } = useAuth();

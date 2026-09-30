@@ -20,6 +20,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<"student" | "teacher" | "admin" | null>(null);
 
+  /**
+   * Loads the user's role from `user_roles`. Falls back to `"student"` when no
+   * row exists so new sign-ups are never left without a role.
+   */
   const fetchRole = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
@@ -34,6 +38,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
+        // Defer fetchRole to the next tick so the onAuthStateChange callback
+        // returns before issuing a follow-up Supabase query, avoiding a
+        // potential deadlock in Supabase's internal subscription handler.
         setTimeout(() => fetchRole(session.user.id), 0);
       } else {
         setRole(null);
@@ -51,6 +58,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  /**
+   * Registers a new user. `name` and `role` are stored in Supabase user
+   * metadata; a database trigger is responsible for writing the corresponding
+   * row into `user_roles`.
+   */
   const signUp = async (email: string, password: string, name: string, role: string) => {
     const { error } = await supabase.auth.signUp({
       email,
@@ -79,6 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+/** Consumes the AuthContext. Must be called within an `AuthProvider` subtree. */
 export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
