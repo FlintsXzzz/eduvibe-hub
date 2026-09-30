@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Environment variables (never commit — these are inlined into the client bundle)
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
